@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { Layer, Stage } from "react-konva";
 import { LoadMap } from "./LoadMap";
 
-interface Props {}
-
 const scaleBy = 1.01;
 
 interface Points {
@@ -24,13 +22,13 @@ function getCenter(p1: Points, p2: Points) {
   };
 }
 
-function isTouchEnabled() {
-  return (
-    "ontouchstart" in window ||
-    navigator.maxTouchPoints > 0 ||
-    navigator.maxTouchPoints > 0
-  );
-}
+// function isTouchEnabled() {
+//   return (
+//     "ontouchstart" in window ||
+//     navigator.maxTouchPoints > 0 ||
+//     navigator.maxTouchPoints > 0
+//   );
+// }
 
 export const LocationMap = () => {
   const stageRef = useRef<Konva.Stage>(null);
