@@ -171,6 +171,7 @@ export const LocationMap = () => {
     e.evt.preventDefault();
     if (e.evt.touches.length === 2) {
       setIsPinching(true);
+      setIsZooming(true);
       console.log({ pinching });
     }
   }
