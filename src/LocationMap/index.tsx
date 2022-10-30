@@ -22,13 +22,13 @@ function getCenter(p1: Points, p2: Points) {
   };
 }
 
-function isTouchEnabled() {
-  return (
-    "ontouchstart" in window ||
-    navigator.maxTouchPoints > 0 ||
-    navigator.maxTouchPoints > 0
-  );
-}
+// function isTouchEnabled() {
+//   return (
+//     "ontouchstart" in window ||
+//     navigator.maxTouchPoints > 0 ||
+//     navigator.maxTouchPoints > 0
+//   );
+// }
 
 export const LocationMap = () => {
   const stageRef = useRef<Konva.Stage>(null);
