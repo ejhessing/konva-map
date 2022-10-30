@@ -103,7 +103,7 @@ export const LocationMap = () => {
         console.log({ p1, p2, lastCenter });
         if (!lastCenter) {
           lastCenter = getCenter(p1, p2);
-          return;
+          // return;
         }
         var newCenter = getCenter(p1, p2);
         console.log({ newCenter });
