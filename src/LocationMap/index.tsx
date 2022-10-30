@@ -1,7 +1,7 @@
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
 import { useEffect, useRef, useState } from "react";
-import { Layer, Stage } from "react-konva";
+import { Group, Layer, Stage } from "react-konva";
 import { LoadMap } from "./LoadMap";
 
 const scaleBy = 1.01;
@@ -36,6 +36,7 @@ export const LocationMap = () => {
   const [maxWidth, setMaxWidth] = useState(0);
   const [maxHeight, setMaxHeight] = useState(0);
   const [pinching, setIsPinching] = useState(false);
+  const [isZooming, setIsZooming] = useState(false);
   useEffect(() => {
     var container = document.querySelector("#stage-parent");
     // @ts-ignore
@@ -87,9 +88,7 @@ export const LocationMap = () => {
     const stage = stageRef.current;
     if (stage !== null) {
       if (touch1 && touch2) {
-        if (stage.isDragging()) {
-          stage.stopDrag();
-        }
+        setIsZooming(true);
 
         var p1 = {
           x: touch1.clientX,
@@ -164,7 +163,8 @@ export const LocationMap = () => {
   function handleTouchEnd() {
     lastCenter = null;
     lastDist = 0;
-    setIsPinching(false);
+    // setIsPinching(false);
+    setIsZooming(false);
   }
 
   function handleTouchDown(e: Konva.KonvaEventObject<TouchEvent>) {
@@ -175,12 +175,17 @@ export const LocationMap = () => {
     }
   }
 
-  console.log({ maxWidth, maxHeight });
-  console.log(
-    "1",
-    (stageRef?.current?.scaleX() || 0) > 1,
-    stageRef?.current?.scaleX()
-  );
+  const handleDragStart = (e: Konva.KonvaEventObject<DragEvent>) => {
+    const stage = e.target.getStage();
+
+    if (!stage) return;
+    if (isZooming) {
+      stage.stopDrag();
+    }
+
+    console.log(stage.isDragging());
+  };
+
   return (
     <div className="p-3">
       <div className="w-full h-5/6" id="stage-parent">
@@ -189,7 +194,7 @@ export const LocationMap = () => {
           width={500}
           height={500}
           className="bg-slate-200 border-2 border-blue-600"
-          draggable={!isTouchEnabled()}
+          // draggable={!isTouchEnabled()}
           // draggable={!pinching}
           // draggable={!pinching && (stageRef?.current?.scaleX() || 0) > 1}
           onWheel={zoomStage}
@@ -211,14 +216,16 @@ export const LocationMap = () => {
           }}
         >
           <Layer perfectDrawEnabled={false}>
-            <LoadMap
-              url={
-                "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/FLOOR-PLAN-BUILDINGS.jpg"
-              }
-              mapHeight={maxHeight}
-              mapWidth={maxWidth}
-              mapRef={mapRef}
-            />
+            <Group draggable={true} onDragStart={handleDragStart}>
+              <LoadMap
+                url={
+                  "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/FLOOR-PLAN-BUILDINGS.jpg"
+                }
+                mapHeight={maxHeight}
+                mapWidth={maxWidth}
+                mapRef={mapRef}
+              />
+            </Group>
           </Layer>
         </Stage>
       </div>
