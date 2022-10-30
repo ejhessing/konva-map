@@ -203,6 +203,8 @@ export const LocationMap = () => {
           onTouchMove={handleTouch}
           onTouchEnd={handleTouchEnd}
           perfectDrawEnabled={false}
+          draggable={!isZooming}
+          onDragStart={handleDragStart}
           onDragEnd={(e) => {
             const stage = stageRef.current;
             if (stage !== null) {
@@ -217,7 +219,7 @@ export const LocationMap = () => {
           }}
         >
           <Layer perfectDrawEnabled={false}>
-            <Group draggable={!isZooming} onDragStart={handleDragStart}>
+            <Group>
               <LoadMap
                 url={
                   "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/FLOOR-PLAN-BUILDINGS.jpg"
