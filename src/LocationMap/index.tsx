@@ -216,7 +216,7 @@ export const LocationMap = () => {
           }}
         >
           <Layer perfectDrawEnabled={false}>
-            <Group draggable={true} onDragStart={handleDragStart}>
+            <Group draggable={!isZooming} onDragStart={handleDragStart}>
               <LoadMap
                 url={
                   "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/FLOOR-PLAN-BUILDINGS.jpg"
