@@ -100,15 +100,15 @@ export const LocationMap = () => {
           x: touch2.clientX,
           y: touch2.clientY,
         };
-
+        console.log({ p1, p2, lastCenter });
         if (!lastCenter) {
           lastCenter = getCenter(p1, p2);
           return;
         }
         var newCenter = getCenter(p1, p2);
-
+        console.log({ newCenter });
         var dist = getDistance(p1, p2);
-
+        console.log({ dist, lastDist });
         if (!lastDist) {
           lastDist = dist;
         }
@@ -118,8 +118,9 @@ export const LocationMap = () => {
           x: (newCenter.x - stage.x()) / stage.scaleX(),
           y: (newCenter.y - stage.y()) / stage.scaleX(),
         };
-
+        console.log({ pointTo });
         var scale = stage.scaleX() * (dist / lastDist);
+        console.log({ scale });
         if (scale < 1) {
           scale = 1;
         }
@@ -129,12 +130,12 @@ export const LocationMap = () => {
         // calculate new position of the stage
         var dx = newCenter.x - lastCenter.x;
         var dy = newCenter.y - lastCenter.y;
-
+        console.log({ dx, dy });
         var newPos = {
           x: newCenter.x - pointTo.x * scale + dx,
           y: newCenter.y - pointTo.y * scale + dy,
         };
-
+        console.log({ newPos });
         // TODO: check if this is right on mobile
         if (stage.scaleX() <= 1) {
           newPos = {
@@ -148,6 +149,7 @@ export const LocationMap = () => {
 
         lastDist = dist;
         lastCenter = newCenter;
+        console.log({ lastDist, lastCenter });
       }
       // if (touch2 === undefined) {
       //   e.evt.preventDefault();
