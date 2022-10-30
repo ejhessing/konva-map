@@ -82,13 +82,15 @@ export const LocationMap = () => {
 
   function handleTouch(e: Konva.KonvaEventObject<TouchEvent>) {
     e.evt.preventDefault();
-    console.log("touch");
+    console.log("touch", e.evt);
     var touch1 = e.evt.touches[0];
     var touch2 = e.evt.touches[1];
     const stage = stageRef.current;
+    console.log({ touch1, touch2 });
     if (stage !== null) {
       if (touch1 && touch2) {
         setIsZooming(true);
+        console.log({ isZooming, current: stageRef.current });
 
         var p1 = {
           x: touch1.clientX,
@@ -165,14 +167,17 @@ export const LocationMap = () => {
     lastDist = 0;
     // setIsPinching(false);
     setIsZooming(false);
+    stageRef.current?.draggable(true);
   }
 
   function handleTouchDown(e: Konva.KonvaEventObject<TouchEvent>) {
     e.evt.preventDefault();
-    if (e.evt.touches.length === 2) {
+    console.log({ pinching, current: stageRef.current });
+    if (e.evt.touches.length === 2 && stageRef.current !== null) {
       setIsPinching(true);
       setIsZooming(true);
-      console.log({ pinching });
+      stageRef.current.draggable(false);
+      console.log({ pinching, isZooming, current: stageRef.current });
     }
   }
 
@@ -181,6 +186,7 @@ export const LocationMap = () => {
 
     if (!stage) return;
     if (isZooming) {
+      stage.draggable(false);
       stage.stopDrag();
     }
 
