@@ -5,6 +5,7 @@ import { Group, Layer, Stage } from "react-konva";
 import { ToolBar } from "../Toolbar";
 import { LoadMap } from "./LoadMap";
 import { Marker } from "./Marker";
+import { MarkerImage } from "./MarkerImage";
 
 const scaleBy = 1.01;
 
@@ -35,17 +36,20 @@ function getCenter(p1: Points, p2: Points) {
 interface Props {
   markerMode: boolean;
   setMarkerMode: (markerMode: boolean) => void;
-  setLocation: (x: number, y: number) => void;
+  markerLocation: Vector2d;
+  setMarkerLocation: ({ x, y }: Vector2d) => void;
 }
 
 export const LocationMap = ({
   markerMode,
   setMarkerMode,
-  setLocation,
+  setMarkerLocation,
+  markerLocation,
 }: Props) => {
   const stageRef = useRef<Konva.Stage>(null);
   const mapRef = useRef<Konva.Image | null>(null);
   const markerRef = useRef<Konva.Image | null>(null);
+  const markerImageRef = useRef<Konva.Image | null>(null);
   const [maxWidth, setMaxWidth] = useState(0);
   const [maxHeight, setMaxHeight] = useState(0);
   const [pinching, setIsPinching] = useState(false);
@@ -216,6 +220,25 @@ export const LocationMap = ({
     if (!stage) return;
   };
 
+  const onHandleMarkerSet = () => {
+    if (markerRef.current === null) return;
+    console.log({
+      current: markerRef.current,
+      x: markerRef.current.x(),
+      y: markerRef.current.y(),
+      x1: markerRef.current.getClientRect().x,
+      y1: markerRef.current.getClientRect().y,
+      scalex: stageRef.current?.scaleX(),
+      scaley: stageRef.current?.scaleY(),
+      width: stageRef.current?.width(),
+      height: stageRef.current?.height(),
+    });
+    setMarkerLocation({
+      x: markerRef.current.x(),
+      y: markerRef.current.y(),
+    });
+  };
+
   return (
     <div className="p-3 w-full h-full">
       <div className="w-full h-5/6" id="stage-parent">
@@ -245,28 +268,11 @@ export const LocationMap = ({
             const stage = stageRef.current;
             if (stage !== null) {
               const scale = stage.scaleX();
-              console.log({ scale });
               if (scale <= 1) {
-                var center = {
-                  x: stage.width() / 2 - stage.x(),
-                  y: stage.height() / 2 - stage.y(),
-                };
-                var relatedTo = {
-                  x: (center.x - stage.x()) / 1,
-                  y: (center.y - stage.y()) / 1,
-                };
-
-                var newScale = scale;
-                stage.scale({
-                  x: newScale,
-                  y: newScale,
-                });
-
                 var newPos = {
-                  x: center.x - relatedTo.x,
-                  y: center.y - relatedTo.y,
+                  x: 0,
+                  y: 0,
                 };
-
                 stage.position(newPos);
                 stage.batchDraw();
               }
@@ -283,6 +289,17 @@ export const LocationMap = ({
                 mapWidth={maxWidth}
                 mapRef={mapRef}
               />
+              {markerLocation && (
+                <MarkerImage
+                  url={
+                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/fd-logo.png"
+                  }
+                  maxWidth={maxWidth}
+                  maxHeight={maxHeight}
+                  markerRef={markerImageRef}
+                  location={markerLocation}
+                />
+              )}
             </Group>
           </Layer>
           <Layer draggable>
@@ -301,18 +318,20 @@ export const LocationMap = ({
           </Layer>
         </Stage>
         {!markerMode && (
-          <button
-            onClick={() => setMarkerMode(true)}
-            className="bg-blue-600 border-blue-800 p-2 my-2 w-full rounded-lg text-white"
-          >
-            {" "}
-            Add Marker
-          </button>
+          <div>
+            <button
+              onClick={() => setMarkerMode(true)}
+              className="bg-blue-600 border-blue-800 p-2 my-2 w-full rounded-lg text-white"
+            >
+              {" "}
+              Add Marker
+            </button>
+          </div>
         )}
         {markerMode && (
           <div className="flex w-full content-center ">
             <button
-              onClick={() => console.log("here")}
+              onClick={() => onHandleMarkerSet()}
               className="bg-blue-600 border-blue-800 p-2 w-full m-2 rounded-lg  text-white"
             >
               Set location
