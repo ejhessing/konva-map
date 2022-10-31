@@ -2,7 +2,9 @@ import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { Group, Layer, Stage } from "react-konva";
+import { ToolBar } from "../Toolbar";
 import { LoadMap } from "./LoadMap";
+import { Marker } from "./Marker";
 
 const scaleBy = 1.01;
 
@@ -30,13 +32,24 @@ function getCenter(p1: Points, p2: Points) {
 //   );
 // }
 
-export const LocationMap = () => {
+interface Props {
+  markerMode: boolean;
+  setMarkerMode: (markerMode: boolean) => void;
+  setLocation: (x: number, y: number) => void;
+}
+
+export const LocationMap = ({
+  markerMode,
+  setMarkerMode,
+  setLocation,
+}: Props) => {
   const stageRef = useRef<Konva.Stage>(null);
   const mapRef = useRef<Konva.Image | null>(null);
+  const markerRef = useRef<Konva.Image | null>(null);
   const [maxWidth, setMaxWidth] = useState(0);
   const [maxHeight, setMaxHeight] = useState(0);
   const [pinching, setIsPinching] = useState(false);
-  const [isZooming, setIsZooming] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
   useEffect(() => {
     var container = document.querySelector("#stage-parent");
     // @ts-ignore
@@ -80,18 +93,46 @@ export const LocationMap = () => {
     }
   }
 
+  const setScale = (scale: number) => {
+    // e.evt.preventDefault();
+    const stage = stageRef.current;
+
+    if (!stage) return;
+    var oldScale = stage.scaleX();
+
+    var center = {
+      x: stage.width() / 2,
+      y: stage.height() / 2,
+    };
+    var relatedTo = {
+      x: (center.x - stage.x()) / oldScale,
+      y: (center.y - stage.y()) / oldScale,
+    };
+
+    var newScale = scale;
+    stage.scale({
+      x: newScale,
+      y: newScale,
+    });
+
+    setZoomLevel(newScale);
+    var newPos = {
+      x: center.x - relatedTo.x * newScale,
+      y: center.y - relatedTo.y * newScale,
+    };
+
+    stage.position(newPos);
+    stage.batchDraw();
+  };
+
   function handleTouch(e: Konva.KonvaEventObject<TouchEvent>) {
     e.evt.preventDefault();
-    console.log("touch", e.evt);
+
     var touch1 = e.evt.touches[0];
     var touch2 = e.evt.touches[1];
     const stage = stageRef.current;
-    console.log({ touch1, touch2 });
     if (stage !== null) {
       if (touch1 && touch2) {
-        setIsZooming(true);
-        console.log({ isZooming, current: stageRef.current });
-
         var p1 = {
           x: touch1.clientX,
           y: touch1.clientY,
@@ -151,35 +192,21 @@ export const LocationMap = () => {
         lastCenter = newCenter;
         console.log({ lastDist, lastCenter });
       }
-      // if (touch2 === undefined) {
-      //   e.evt.preventDefault();
-      //   const touch = e.evt.touches[0];
-
-      //   stage.position({
-      //     x: touch.clientX - stage.x() - stage.scaleX(),
-      //     y: touch.clientY - stage.y() - stage.scaleY(),
-      //   });
-      //   stage.batchDraw();
-      // }
     }
   }
 
   function handleTouchEnd() {
     lastCenter = null;
     lastDist = 0;
-    // setIsPinching(false);
-    setIsZooming(false);
+    setIsPinching(false);
     stageRef.current?.draggable(true);
   }
 
   function handleTouchDown(e: Konva.KonvaEventObject<TouchEvent>) {
     e.evt.preventDefault();
-    console.log({ pinching, current: stageRef.current });
     if (e.evt.touches.length === 2 && stageRef.current !== null) {
       setIsPinching(true);
-      setIsZooming(true);
       stageRef.current.draggable(false);
-      console.log({ pinching, isZooming, current: stageRef.current });
     }
   }
 
@@ -187,41 +214,61 @@ export const LocationMap = () => {
     const stage = e.target.getStage();
 
     if (!stage) return;
-    if (isZooming) {
-      stage.draggable(false);
-      stage.stopDrag();
-    }
-
-    console.log(stage.isDragging());
   };
 
   return (
-    <div className="p-3">
+    <div className="p-3 w-full h-full">
       <div className="w-full h-5/6" id="stage-parent">
+        <ToolBar
+          zoomIn={() => setScale(zoomLevel + 0.25)}
+          zoomOut={() => {
+            if (zoomLevel <= 1) {
+              return;
+            }
+            setScale(zoomLevel - 0.25);
+          }}
+          zoomReset={() => setScale(1)}
+        />
         <Stage
           ref={stageRef}
           width={500}
           height={500}
-          className="bg-slate-200 border-2 border-blue-600"
-          // draggable={!isTouchEnabled()}
-          // draggable={!pinching}
-          // draggable={!pinching && (stageRef?.current?.scaleX() || 0) > 1}
+          className="bg-slate-200 border-2  border-blue-600"
+          draggable={!pinching && !markerMode}
           onWheel={zoomStage}
           onTouchDown={handleTouchDown}
           onTouchMove={handleTouch}
           onTouchEnd={handleTouchEnd}
           perfectDrawEnabled={false}
-          draggable={!isZooming}
           onDragStart={handleDragStart}
           onDragEnd={(e) => {
             const stage = stageRef.current;
             if (stage !== null) {
               const scale = stage.scaleX();
+              console.log({ scale });
               if (scale <= 1) {
-                stage.position({
-                  x: 0,
-                  y: 0,
+                var center = {
+                  x: stage.width() / 2 - stage.x(),
+                  y: stage.height() / 2 - stage.y(),
+                };
+                var relatedTo = {
+                  x: (center.x - stage.x()) / 1,
+                  y: (center.y - stage.y()) / 1,
+                };
+
+                var newScale = scale;
+                stage.scale({
+                  x: newScale,
+                  y: newScale,
                 });
+
+                var newPos = {
+                  x: center.x - relatedTo.x,
+                  y: center.y - relatedTo.y,
+                };
+
+                stage.position(newPos);
+                stage.batchDraw();
               }
             }
           }}
@@ -238,7 +285,46 @@ export const LocationMap = () => {
               />
             </Group>
           </Layer>
+          <Layer draggable>
+            <Group>
+              {markerMode && (
+                <Marker
+                  url={
+                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/fd-logo.png"
+                  }
+                  maxWidth={maxWidth}
+                  maxHeight={maxHeight}
+                  markerRef={markerRef}
+                />
+              )}
+            </Group>
+          </Layer>
         </Stage>
+        {!markerMode && (
+          <button
+            onClick={() => setMarkerMode(true)}
+            className="bg-blue-600 border-blue-800 p-2 my-2 w-full rounded-lg text-white"
+          >
+            {" "}
+            Add Marker
+          </button>
+        )}
+        {markerMode && (
+          <div className="flex w-full content-center ">
+            <button
+              onClick={() => console.log("here")}
+              className="bg-blue-600 border-blue-800 p-2 w-full m-2 rounded-lg  text-white"
+            >
+              Set location
+            </button>
+            <button
+              onClick={() => setMarkerMode(false)}
+              className="bg-gray-600 border-gray-800 p-2 w-full m-2 rounded-lg  text-white"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

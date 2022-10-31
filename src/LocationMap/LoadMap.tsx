@@ -1,6 +1,7 @@
 import Konva from "konva";
 import { Image } from "react-konva";
 import useImage from "use-image";
+import { calculateAspectRatioFit } from "./helper";
 
 interface Props {
   url: string;
@@ -9,18 +10,12 @@ interface Props {
   mapRef: React.MutableRefObject<Konva.Image | null>;
 }
 
-export function calculateAspectRatioFit(
-  srcWidth: number,
-  srcHeight: number,
-  maxWidth: number,
-  maxHeight: number
-) {
-  var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
-
-  return { width: srcWidth * ratio, height: srcHeight * ratio };
-}
-
-export const LoadMap = ({ url, mapWidth, mapHeight, mapRef }: Props) => {
+export const LoadMap = ({
+  url,
+  mapWidth = 0,
+  mapHeight = 0,
+  mapRef,
+}: Props) => {
   const [image] = useImage(url);
   const imageWidth = image?.naturalWidth || 0;
   const imageHeight = image?.naturalHeight || 0;
@@ -32,15 +27,15 @@ export const LoadMap = ({ url, mapWidth, mapHeight, mapRef }: Props) => {
   );
 
   // Center location map
-  const x = (mapWidth - newWidth) / 2;
-  const y = (mapHeight - newHeight) / 2;
+  const x = (mapWidth - newWidth) / 2 - 4;
+  const y = (mapHeight - newHeight) / 2 - 4;
 
   return (
     <Image
       ref={mapRef}
       image={image}
-      width={newWidth}
-      height={newHeight}
+      width={newWidth || 0}
+      height={newHeight || 0}
       x={x || 0}
       y={y || 0}
     />
