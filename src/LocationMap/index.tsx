@@ -296,36 +296,37 @@ export const LocationMap = ({
           }}
           zoomReset={() => setScale(1)}
         />
-        <TransformWrapper>
-          <TransformComponent>
-            <Stage
-              ref={stageRef}
-              width={500}
-              height={500}
-              className="bg-slate-200 border-2  border-blue-600"
-              // draggable={true}
-              // draggable={!markerMode}
-              // onWheel={zoomStage}
-              // onTouchDown={handleTouchDown}
-              // onTouchMove={handleTouch}
-              // onTouchEnd={handleTouchEnd}
-              perfectDrawEnabled={false}
-              onDragStart={handleDragStart}
-              onDragEnd={(e) => {
-                const stage = stageRef.current;
-                if (stage !== null) {
-                  const scale = stage.scaleX();
-                  if (scale <= 1) {
-                    var newPos = {
-                      x: 0,
-                      y: 0,
-                    };
-                    stage.position(newPos);
-                    stage.batchDraw();
-                  }
-                }
-              }}
-            >
+
+        <Stage
+          ref={stageRef}
+          width={500}
+          height={500}
+          className="bg-slate-200 border-2  border-blue-600"
+          // draggable={true}
+          // draggable={!markerMode}
+          // onWheel={zoomStage}
+          // onTouchDown={handleTouchDown}
+          // onTouchMove={handleTouch}
+          // onTouchEnd={handleTouchEnd}
+          perfectDrawEnabled={false}
+          onDragStart={handleDragStart}
+          onDragEnd={(e) => {
+            const stage = stageRef.current;
+            if (stage !== null) {
+              const scale = stage.scaleX();
+              if (scale <= 1) {
+                var newPos = {
+                  x: 0,
+                  y: 0,
+                };
+                stage.position(newPos);
+                stage.batchDraw();
+              }
+            }
+          }}
+        >
+          <TransformWrapper>
+            <TransformComponent>
               <Layer perfectDrawEnabled={false}>
                 <Group>
                   <LoadMap
@@ -355,25 +356,26 @@ export const LocationMap = ({
                   )}
                 </Group>
               </Layer>
-              {markerMode && (
-                <Layer draggable>
-                  <Group>
-                    <Marker
-                      url={
-                        "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
-                      }
-                      maxWidth={maxWidth}
-                      maxHeight={maxHeight}
-                      markerRef={markerRef}
-                      location={markerLocation}
-                      mapSize={mapSize}
-                    />
-                  </Group>
-                </Layer>
-              )}
-            </Stage>
-          </TransformComponent>
-        </TransformWrapper>
+            </TransformComponent>
+          </TransformWrapper>
+          {markerMode && (
+            <Layer draggable>
+              <Group>
+                <Marker
+                  url={
+                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
+                  }
+                  maxWidth={maxWidth}
+                  maxHeight={maxHeight}
+                  markerRef={markerRef}
+                  location={markerLocation}
+                  mapSize={mapSize}
+                />
+              </Group>
+            </Layer>
+          )}
+        </Stage>
+
         {!markerMode && (
           <div>
             <button
