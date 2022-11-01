@@ -267,7 +267,8 @@ export const LocationMap = ({
           width={500}
           height={500}
           className="bg-slate-200 border-2  border-blue-600"
-          draggable={!pinching && !markerMode}
+          draggable={false}
+          // draggable={!pinching && !markerMode}
           onWheel={zoomStage}
           onTouchDown={handleTouchDown}
           onTouchMove={handleTouch}
@@ -293,7 +294,7 @@ export const LocationMap = ({
             <Group>
               <LoadMap
                 url={
-                  "https://cdn.jhmrad.com/wp-content/uploads/hospital-floor-plan-medical-office-building-plans_88886.jpg"
+                  "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/hospital-floor-plan-medical-office-building-plans_88886.jpeg"
                 }
                 mapHeight={maxHeight}
                 mapWidth={maxWidth}
@@ -305,7 +306,7 @@ export const LocationMap = ({
               {!!markerLocation.x && (
                 <MarkerImage
                   url={
-                    "https://assets.stickpng.com/thumbs/5888920ebc2fc2ef3a1860a9.png"
+                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888920ebc2fc2ef3a1860a9+(1).png"
                   }
                   maxWidth={maxWidth}
                   maxHeight={maxHeight}
@@ -323,7 +324,7 @@ export const LocationMap = ({
               {markerMode && (
                 <Marker
                   url={
-                    "http://assets.stickpng.com/thumbs/5888925dbc2fc2ef3a1860ad.png"
+                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
                   }
                   maxWidth={maxWidth}
                   maxHeight={maxHeight}
