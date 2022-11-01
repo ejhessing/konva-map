@@ -286,47 +286,46 @@ export const LocationMap = ({
   return (
     <div className="p-3 w-full h-full">
       <div className="w-full h-5/6" id="stage-parent">
-        <ToolBar
-          zoomIn={() => setScale(zoomLevel + 0.25)}
-          zoomOut={() => {
-            if (zoomLevel <= 1) {
-              return;
-            }
-            setScale(zoomLevel - 0.25);
-          }}
-          zoomReset={() => setScale(1)}
-        />
-
-        <Stage
-          ref={stageRef}
-          width={500}
-          height={500}
-          className="bg-slate-200 border-2  border-blue-600"
-          // draggable={true}
-          // draggable={!markerMode}
-          // onWheel={zoomStage}
-          // onTouchDown={handleTouchDown}
-          // onTouchMove={handleTouch}
-          // onTouchEnd={handleTouchEnd}
-          perfectDrawEnabled={false}
-          onDragStart={handleDragStart}
-          onDragEnd={(e) => {
-            const stage = stageRef.current;
-            if (stage !== null) {
-              const scale = stage.scaleX();
-              if (scale <= 1) {
-                var newPos = {
-                  x: 0,
-                  y: 0,
-                };
-                stage.position(newPos);
-                stage.batchDraw();
+        <TransformWrapper>
+          <ToolBar
+            zoomIn={() => setScale(zoomLevel + 0.25)}
+            zoomOut={() => {
+              if (zoomLevel <= 1) {
+                return;
               }
-            }
-          }}
-        >
-          <TransformWrapper>
-            <TransformComponent>
+              setScale(zoomLevel - 0.25);
+            }}
+            zoomReset={() => setScale(1)}
+          />
+          <TransformComponent>
+            <Stage
+              ref={stageRef}
+              width={500}
+              height={500}
+              className="bg-slate-200 border-2  border-blue-600"
+              // draggable={true}
+              // draggable={!markerMode}
+              // onWheel={zoomStage}
+              // onTouchDown={handleTouchDown}
+              // onTouchMove={handleTouch}
+              // onTouchEnd={handleTouchEnd}
+              perfectDrawEnabled={false}
+              onDragStart={handleDragStart}
+              onDragEnd={(e) => {
+                const stage = stageRef.current;
+                if (stage !== null) {
+                  const scale = stage.scaleX();
+                  if (scale <= 1) {
+                    var newPos = {
+                      x: 0,
+                      y: 0,
+                    };
+                    stage.position(newPos);
+                    stage.batchDraw();
+                  }
+                }
+              }}
+            >
               <Layer perfectDrawEnabled={false}>
                 <Group>
                   <LoadMap
@@ -356,53 +355,53 @@ export const LocationMap = ({
                   )}
                 </Group>
               </Layer>
-            </TransformComponent>
-          </TransformWrapper>
-          {markerMode && (
-            <Layer draggable>
-              <Group>
-                <Marker
-                  url={
-                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
-                  }
-                  maxWidth={maxWidth}
-                  maxHeight={maxHeight}
-                  markerRef={markerRef}
-                  location={markerLocation}
-                  mapSize={mapSize}
-                />
-              </Group>
-            </Layer>
-          )}
-        </Stage>
 
-        {!markerMode && (
-          <div>
-            <button
-              onClick={() => setMarkerMode(true)}
-              className="bg-blue-600 border-blue-800 p-2 my-2 w-full rounded-lg text-white"
-            >
-              {" "}
-              Add Marker
-            </button>
-          </div>
-        )}
-        {markerMode && (
-          <div className="flex w-full content-center ">
-            <button
-              onClick={() => onHandleMarkerSet()}
-              className="bg-blue-600 border-blue-800 p-2 w-full m-2 rounded-lg  text-white"
-            >
-              Set location
-            </button>
-            <button
-              onClick={() => setMarkerMode(false)}
-              className="bg-gray-600 border-gray-800 p-2 w-full m-2 rounded-lg  text-white"
-            >
-              Cancel
-            </button>
-          </div>
-        )}
+              {markerMode && (
+                <Layer draggable>
+                  <Group>
+                    <Marker
+                      url={
+                        "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
+                      }
+                      maxWidth={maxWidth}
+                      maxHeight={maxHeight}
+                      markerRef={markerRef}
+                      location={markerLocation}
+                      mapSize={mapSize}
+                    />
+                  </Group>
+                </Layer>
+              )}
+            </Stage>
+          </TransformComponent>
+          {!markerMode && (
+            <div>
+              <button
+                onClick={() => setMarkerMode(true)}
+                className="bg-blue-600 border-blue-800 p-2 my-2 w-full rounded-lg text-white"
+              >
+                {" "}
+                Add Marker
+              </button>
+            </div>
+          )}
+          {markerMode && (
+            <div className="flex w-full content-center ">
+              <button
+                onClick={() => onHandleMarkerSet()}
+                className="bg-blue-600 border-blue-800 p-2 w-full m-2 rounded-lg  text-white"
+              >
+                Set location
+              </button>
+              <button
+                onClick={() => setMarkerMode(false)}
+                className="bg-gray-600 border-gray-800 p-2 w-full m-2 rounded-lg  text-white"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </TransformWrapper>
       </div>
     </div>
   );
