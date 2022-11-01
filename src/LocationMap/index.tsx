@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import Hammer from "hammerjs";
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
 import { useEffect, useRef, useState } from "react";
@@ -7,8 +8,6 @@ import { ToolBar } from "../Toolbar";
 import { LoadMap } from "./LoadMap";
 import { Marker } from "./Marker";
 import { MarkerImage } from "./MarkerImage";
-
-import PinchZoom from "pinch-zoom-js";
 
 const scaleBy = 1.01;
 
@@ -72,12 +71,29 @@ export const LocationMap = ({
     stageRef.current?.height(container?.offsetHeight || 600);
   }, []);
 
+  function getRelativeScale(scale: number) {
+    return scale * zoomLevel;
+  }
   useEffect(() => {
     var myElement = document.querySelector("canvas");
     if (myElement) {
-      var pz = new PinchZoom(myElement, {
-        draggableUnzoomed: false,
-        minZoom: 1,
+      var manager = new Hammer.Manager(myElement);
+      var Pinch = new Hammer.Pinch();
+      var DoubleTap = new Hammer.Tap({
+        event: "doubletap",
+        taps: 2,
+      });
+      manager.add(Pinch);
+      manager.add(DoubleTap);
+      manager.on("pinchmove", function (e: { scale: number }) {
+        // do something cool
+        var scale = getRelativeScale(e.scale);
+        setZoomLevel(scale);
+      });
+      manager.on("pinchend", function (e: { scale: number }) {
+        // cache the scale
+        const currentScale = getRelativeScale(e.scale);
+        setZoomLevel(currentScale);
       });
     }
   });
