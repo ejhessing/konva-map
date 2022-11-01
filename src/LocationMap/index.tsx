@@ -221,21 +221,18 @@ export const LocationMap = ({
   };
 
   const onHandleMarkerSet = () => {
-    if (markerRef.current === null) return;
-    console.log({
-      current: markerRef.current,
-      x: markerRef.current.x(),
-      y: markerRef.current.y(),
-      x1: markerRef.current.getClientRect().x,
-      y1: markerRef.current.getClientRect().y,
-      scalex: stageRef.current?.scaleX(),
-      scaley: stageRef.current?.scaleY(),
-      width: stageRef.current?.width(),
-      height: stageRef.current?.height(),
-    });
+    if (markerRef.current === null || stageRef.current === null) return;
+
+    var transform = stageRef.current.getAbsoluteTransform().copy();
+    // to detect relative position we need to invert transform
+    transform.invert();
+    // now we find relative point
+    const pos = markerRef.current.getClientRect();
+    var point = transform.point(pos);
+
     setMarkerLocation({
-      x: markerRef.current.x(),
-      y: markerRef.current.y(),
+      x: point.x,
+      y: point.y,
     });
   };
 
@@ -289,7 +286,7 @@ export const LocationMap = ({
                 mapWidth={maxWidth}
                 mapRef={mapRef}
               />
-              {markerLocation && (
+              {!!markerLocation.x && (
                 <MarkerImage
                   url={
                     "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/fd-logo.png"
