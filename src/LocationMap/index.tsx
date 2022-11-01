@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
 import { useEffect, useRef, useState } from "react";
@@ -6,6 +7,8 @@ import { ToolBar } from "../Toolbar";
 import { LoadMap } from "./LoadMap";
 import { Marker } from "./Marker";
 import { MarkerImage } from "./MarkerImage";
+
+import PinchZoom from "pinch-zoom-js";
 
 const scaleBy = 1.01;
 
@@ -68,6 +71,16 @@ export const LocationMap = ({
     // @ts-ignore
     stageRef.current?.height(container?.offsetHeight || 600);
   }, []);
+
+  useEffect(() => {
+    var myElement = document.querySelector("canvas");
+    if (myElement) {
+      var pz = new PinchZoom(myElement, {
+        draggableUnzoomed: false,
+        minZoom: 1,
+      });
+    }
+  });
 
   let lastCenter: Points | null = null;
   let lastDist = 0;
@@ -132,90 +145,90 @@ export const LocationMap = ({
     stage.batchDraw();
   };
 
-  function handleTouch(e: Konva.KonvaEventObject<TouchEvent>) {
-    e.evt.preventDefault();
+  // function handleTouch(e: Konva.KonvaEventObject<TouchEvent>) {
+  //   e.evt.preventDefault();
 
-    var touch1 = e.evt.touches[0];
-    var touch2 = e.evt.touches[1];
-    const stage = stageRef.current;
-    if (stage !== null) {
-      if (touch1 && touch2) {
-        var p1 = {
-          x: touch1.clientX,
-          y: touch1.clientY,
-        };
-        var p2 = {
-          x: touch2.clientX,
-          y: touch2.clientY,
-        };
-        console.log({ p1, p2, lastCenter });
-        if (!lastCenter) {
-          lastCenter = getCenter(p1, p2);
-          // return;
-        }
-        var newCenter = getCenter(p1, p2);
-        console.log({ newCenter });
-        var dist = getDistance(p1, p2);
-        console.log({ dist, lastDist });
-        if (!lastDist) {
-          lastDist = dist;
-        }
+  //   var touch1 = e.evt.touches[0];
+  //   var touch2 = e.evt.touches[1];
+  //   const stage = stageRef.current;
+  //   if (stage !== null) {
+  //     if (touch1 && touch2) {
+  //       var p1 = {
+  //         x: touch1.clientX,
+  //         y: touch1.clientY,
+  //       };
+  //       var p2 = {
+  //         x: touch2.clientX,
+  //         y: touch2.clientY,
+  //       };
+  //       console.log({ p1, p2, lastCenter });
+  //       if (!lastCenter) {
+  //         lastCenter = getCenter(p1, p2);
+  //         return;
+  //       }
+  //       var newCenter = getCenter(p1, p2);
+  //       console.log({ newCenter });
+  //       var dist = getDistance(p1, p2);
+  //       console.log({ dist, lastDist });
+  //       if (!lastDist) {
+  //         lastDist = dist;
+  //       }
 
-        // local coordinates of center point
-        var pointTo = {
-          x: (newCenter.x - stage.x()) / stage.scaleX(),
-          y: (newCenter.y - stage.y()) / stage.scaleX(),
-        };
-        console.log({ pointTo });
-        var scale = stage.scaleX() * (dist / lastDist);
-        console.log({ scale });
-        if (scale < 1) {
-          scale = 1;
-        }
-        stage.scaleX(scale);
-        stage.scaleY(scale);
+  //       // local coordinates of center point
+  //       var pointTo = {
+  //         x: (newCenter.x - stage.x()) / stage.scaleX(),
+  //         y: (newCenter.y - stage.y()) / stage.scaleX(),
+  //       };
+  //       console.log({ pointTo });
+  //       var scale = stage.scaleX() * (dist / lastDist);
+  //       console.log({ scale });
+  //       if (scale < 1) {
+  //         scale = 1;
+  //       }
+  //       stage.scaleX(scale);
+  //       stage.scaleY(scale);
 
-        // calculate new position of the stage
-        var dx = newCenter.x - lastCenter.x;
-        var dy = newCenter.y - lastCenter.y;
-        console.log({ dx, dy });
-        var newPos = {
-          x: newCenter.x - pointTo.x * scale + dx,
-          y: newCenter.y - pointTo.y * scale + dy,
-        };
-        console.log({ newPos });
-        // TODO: check if this is right on mobile
-        if (stage.scaleX() <= 1) {
-          newPos = {
-            x: lastCenter.x,
-            y: lastCenter.y,
-          };
-        }
+  //       // calculate new position of the stage
+  //       var dx = newCenter.x - lastCenter.x;
+  //       var dy = newCenter.y - lastCenter.y;
+  //       console.log({ dx, dy });
+  //       var newPos = {
+  //         x: newCenter.x - pointTo.x * scale + dx,
+  //         y: newCenter.y - pointTo.y * scale + dy,
+  //       };
+  //       console.log({ newPos });
+  //       // TODO: check if this is right on mobile
+  //       if (stage.scaleX() <= 1) {
+  //         newPos = {
+  //           x: lastCenter.x,
+  //           y: lastCenter.y,
+  //         };
+  //       }
 
-        stage.position(newPos);
-        stage.batchDraw();
+  //       stage.position(newPos);
+  //       stage.batchDraw();
 
-        lastDist = dist;
-        lastCenter = newCenter;
-        console.log({ lastDist, lastCenter });
-      }
-    }
-  }
+  //       lastDist = dist;
+  //       lastCenter = newCenter;
+  //       console.log({ lastDist, lastCenter });
+  //     }
+  //   }
+  // }
 
-  function handleTouchEnd() {
-    lastCenter = null;
-    lastDist = 0;
-    setIsPinching(false);
-    // stageRef.current?.draggable(true);
-  }
+  // function handleTouchEnd() {
+  //   lastCenter = null;
+  //   lastDist = 0;
+  //   setIsPinching(false);
+  //   // stageRef.current?.draggable(true);
+  // }
 
-  function handleTouchDown(e: Konva.KonvaEventObject<TouchEvent>) {
-    e.evt.preventDefault();
-    if (e.evt.touches.length === 2 && stageRef.current !== null) {
-      setIsPinching(true);
-      // stageRef.current.draggable(false);
-    }
-  }
+  // function handleTouchDown(e: Konva.KonvaEventObject<TouchEvent>) {
+  //   e.evt.preventDefault();
+  //   if (e.evt.touches.length === 2 && stageRef.current !== null) {
+  //     setIsPinching(true);
+  //     // stageRef.current.draggable(false);
+  //   }
+  // }
 
   const handleDragStart = (e: Konva.KonvaEventObject<DragEvent>) => {
     const stage = e.target.getStage();
@@ -271,9 +284,9 @@ export const LocationMap = ({
           draggable={false}
           // draggable={!pinching && !markerMode}
           onWheel={zoomStage}
-          onTouchDown={handleTouchDown}
-          onTouchMove={handleTouch}
-          onTouchEnd={handleTouchEnd}
+          // onTouchDown={handleTouchDown}
+          // onTouchMove={handleTouch}
+          // onTouchEnd={handleTouchEnd}
           perfectDrawEnabled={false}
           onDragStart={handleDragStart}
           onDragEnd={(e) => {

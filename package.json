@@ -12,6 +12,7 @@
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",
     "konva": "^8.3.13",
+    "pinch-zoom-js": "^2.3.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-konva": "^18.2.3",
