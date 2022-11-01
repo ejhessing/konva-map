@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+  TransformComponent,
+  TransformWrapper,
+} from "@pronestor/react-zoom-pan-pinch";
 import Hammer from "hammerjs";
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
@@ -292,80 +296,84 @@ export const LocationMap = ({
           }}
           zoomReset={() => setScale(1)}
         />
-        <Stage
-          ref={stageRef}
-          width={500}
-          height={500}
-          className="bg-slate-200 border-2  border-blue-600"
-          // draggable={true}
-          draggable={!markerMode}
-          onWheel={zoomStage}
-          // onTouchDown={handleTouchDown}
-          // onTouchMove={handleTouch}
-          // onTouchEnd={handleTouchEnd}
-          perfectDrawEnabled={false}
-          onDragStart={handleDragStart}
-          onDragEnd={(e) => {
-            const stage = stageRef.current;
-            if (stage !== null) {
-              const scale = stage.scaleX();
-              if (scale <= 1) {
-                var newPos = {
-                  x: 0,
-                  y: 0,
-                };
-                stage.position(newPos);
-                stage.batchDraw();
-              }
-            }
-          }}
-        >
-          <Layer perfectDrawEnabled={false}>
-            <Group>
-              <LoadMap
-                url={
-                  "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/hospital-floor-plan-medical-office-building-plans_88886.jpeg"
-                }
-                mapHeight={maxHeight}
-                mapWidth={maxWidth}
-                mapRef={mapRef}
-                setMapSize={(w: number, h: number) =>
-                  setMapSize({ width: w, height: h })
-                }
-              />
-              {!!markerLocation.x && (
-                <MarkerImage
-                  url={
-                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888920ebc2fc2ef3a1860a9+(1).png"
+        <TransformWrapper>
+          <TransformComponent>
+            <Stage
+              ref={stageRef}
+              width={500}
+              height={500}
+              className="bg-slate-200 border-2  border-blue-600"
+              // draggable={true}
+              // draggable={!markerMode}
+              // onWheel={zoomStage}
+              // onTouchDown={handleTouchDown}
+              // onTouchMove={handleTouch}
+              // onTouchEnd={handleTouchEnd}
+              perfectDrawEnabled={false}
+              onDragStart={handleDragStart}
+              onDragEnd={(e) => {
+                const stage = stageRef.current;
+                if (stage !== null) {
+                  const scale = stage.scaleX();
+                  if (scale <= 1) {
+                    var newPos = {
+                      x: 0,
+                      y: 0,
+                    };
+                    stage.position(newPos);
+                    stage.batchDraw();
                   }
-                  maxWidth={maxWidth}
-                  maxHeight={maxHeight}
-                  markerRef={markerImageRef}
-                  location={markerLocation}
-                  mapSize={mapSize}
-                  mapRef={mapRef}
-                  stageRef={stageRef}
-                />
+                }
+              }}
+            >
+              <Layer perfectDrawEnabled={false}>
+                <Group>
+                  <LoadMap
+                    url={
+                      "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/hospital-floor-plan-medical-office-building-plans_88886.jpeg"
+                    }
+                    mapHeight={maxHeight}
+                    mapWidth={maxWidth}
+                    mapRef={mapRef}
+                    setMapSize={(w: number, h: number) =>
+                      setMapSize({ width: w, height: h })
+                    }
+                  />
+                  {!!markerLocation.x && (
+                    <MarkerImage
+                      url={
+                        "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888920ebc2fc2ef3a1860a9+(1).png"
+                      }
+                      maxWidth={maxWidth}
+                      maxHeight={maxHeight}
+                      markerRef={markerImageRef}
+                      location={markerLocation}
+                      mapSize={mapSize}
+                      mapRef={mapRef}
+                      stageRef={stageRef}
+                    />
+                  )}
+                </Group>
+              </Layer>
+              {markerMode && (
+                <Layer draggable>
+                  <Group>
+                    <Marker
+                      url={
+                        "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
+                      }
+                      maxWidth={maxWidth}
+                      maxHeight={maxHeight}
+                      markerRef={markerRef}
+                      location={markerLocation}
+                      mapSize={mapSize}
+                    />
+                  </Group>
+                </Layer>
               )}
-            </Group>
-          </Layer>
-          {markerMode && (
-            <Layer draggable>
-              <Group>
-                <Marker
-                  url={
-                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
-                  }
-                  maxWidth={maxWidth}
-                  maxHeight={maxHeight}
-                  markerRef={markerRef}
-                  location={markerLocation}
-                  mapSize={mapSize}
-                />
-              </Group>
-            </Layer>
-          )}
-        </Stage>
+            </Stage>
+          </TransformComponent>
+        </TransformWrapper>
         {!markerMode && (
           <div>
             <button
