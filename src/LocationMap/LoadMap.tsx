@@ -37,6 +37,8 @@ export const LoadMap = ({
     if (newWidth && newHeight) {
       setMapSize(newWidth, newHeight);
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newWidth, newHeight]);
 
   return (
