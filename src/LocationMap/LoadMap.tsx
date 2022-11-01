@@ -1,4 +1,5 @@
 import Konva from "konva";
+import { useEffect } from "react";
 import { Image } from "react-konva";
 import useImage from "use-image";
 import { calculateAspectRatioFit } from "./helper";
@@ -8,6 +9,7 @@ interface Props {
   mapWidth: number;
   mapHeight: number;
   mapRef: React.MutableRefObject<Konva.Image | null>;
+  setMapSize: (width: number, height: number) => void;
 }
 
 export const LoadMap = ({
@@ -15,6 +17,7 @@ export const LoadMap = ({
   mapWidth = 0,
   mapHeight = 0,
   mapRef,
+  setMapSize,
 }: Props) => {
   const [image] = useImage(url);
   const imageWidth = image?.naturalWidth || 0;
@@ -29,6 +32,12 @@ export const LoadMap = ({
   // Center location map
   const x = (mapWidth - newWidth) / 2 - 4;
   const y = (mapHeight - newHeight) / 2 - 4;
+
+  useEffect(() => {
+    if (newWidth && newHeight) {
+      setMapSize(newWidth, newHeight);
+    }
+  }, [newWidth, newHeight]);
 
   return (
     <Image

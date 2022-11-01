@@ -53,7 +53,9 @@ export const LocationMap = ({
   const [maxWidth, setMaxWidth] = useState(0);
   const [maxHeight, setMaxHeight] = useState(0);
   const [pinching, setIsPinching] = useState(false);
+  const [mapSize, setMapSize] = useState({ width: 0, height: 0 });
   const [zoomLevel, setZoomLevel] = useState<number>(1);
+
   useEffect(() => {
     var container = document.querySelector("#stage-parent");
     // @ts-ignore
@@ -221,7 +223,12 @@ export const LocationMap = ({
   };
 
   const onHandleMarkerSet = () => {
-    if (markerRef.current === null || stageRef.current === null) return;
+    if (
+      markerRef.current === null ||
+      stageRef.current === null ||
+      mapRef.current === null
+    )
+      return;
 
     var transform = stageRef.current.getAbsoluteTransform().copy();
     // to detect relative position we need to invert transform
@@ -230,9 +237,12 @@ export const LocationMap = ({
     const pos = markerRef.current.getClientRect();
     var point = transform.point(pos);
 
+    const mapPos = mapRef.current.getClientRect();
+    var mapPoint = transform.point(mapPos);
+
     setMarkerLocation({
-      x: point.x,
-      y: point.y,
+      x: (point.x - mapPoint.x) / maxWidth,
+      y: (point.y - mapPoint.y) / maxHeight,
     });
   };
 
@@ -280,21 +290,27 @@ export const LocationMap = ({
             <Group>
               <LoadMap
                 url={
-                  "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/FLOOR-PLAN-BUILDINGS.jpg"
+                  "https://cdn.jhmrad.com/wp-content/uploads/hospital-floor-plan-medical-office-building-plans_88886.jpg"
                 }
                 mapHeight={maxHeight}
                 mapWidth={maxWidth}
                 mapRef={mapRef}
+                setMapSize={(w: number, h: number) =>
+                  setMapSize({ width: w, height: h })
+                }
               />
               {!!markerLocation.x && (
                 <MarkerImage
                   url={
-                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/fd-logo.png"
+                    "https://assets.stickpng.com/thumbs/5888920ebc2fc2ef3a1860a9.png"
                   }
                   maxWidth={maxWidth}
                   maxHeight={maxHeight}
                   markerRef={markerImageRef}
                   location={markerLocation}
+                  mapSize={mapSize}
+                  mapRef={mapRef}
+                  stageRef={stageRef}
                 />
               )}
             </Group>
@@ -304,11 +320,13 @@ export const LocationMap = ({
               {markerMode && (
                 <Marker
                   url={
-                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/fd-logo.png"
+                    "http://assets.stickpng.com/thumbs/5888925dbc2fc2ef3a1860ad.png"
                   }
                   maxWidth={maxWidth}
                   maxHeight={maxHeight}
                   markerRef={markerRef}
+                  location={markerLocation}
+                  mapSize={mapSize}
                 />
               )}
             </Group>

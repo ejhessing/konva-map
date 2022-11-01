@@ -10,6 +10,9 @@ interface Props {
   maxHeight: number;
   markerRef: React.MutableRefObject<Konva.Image | null>;
   location: Vector2d;
+  mapSize: { width: number; height: number };
+  mapRef: React.MutableRefObject<Konva.Image | null>;
+  stageRef: React.MutableRefObject<Konva.Stage | null>;
 }
 
 export const MarkerImage = ({
@@ -18,6 +21,9 @@ export const MarkerImage = ({
   maxHeight = 0,
   markerRef,
   location,
+  mapSize,
+  mapRef,
+  stageRef,
 }: Props) => {
   const [markerImg] = useImage(url);
   const imageWidth = markerImg?.naturalWidth || 0;
@@ -31,6 +37,14 @@ export const MarkerImage = ({
     maxWidth * scaleDown,
     maxHeight * scaleDown
   );
+  if (stageRef.current === null || mapRef.current === null) return <></>;
+
+  var transform = stageRef.current.getAbsoluteTransform().copy();
+  // to detect relative position we need to invert transform
+  transform.invert();
+
+  const mapPos = mapRef.current.getClientRect();
+  var mapPoint = transform.point(mapPos);
 
   return (
     <>
@@ -38,8 +52,8 @@ export const MarkerImage = ({
         image={markerImg}
         width={newWidth || 0}
         height={newHeight || 0}
-        x={location.x || 0}
-        y={location.y || 0}
+        x={location.x * maxWidth + mapPoint.x || 0}
+        y={location.y * maxHeight + mapPoint.y || 0}
         ref={markerRef}
       />
     </>
