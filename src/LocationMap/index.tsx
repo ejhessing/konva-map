@@ -206,14 +206,14 @@ export const LocationMap = ({
     lastCenter = null;
     lastDist = 0;
     setIsPinching(false);
-    stageRef.current?.draggable(true);
+    // stageRef.current?.draggable(true);
   }
 
   function handleTouchDown(e: Konva.KonvaEventObject<TouchEvent>) {
     e.evt.preventDefault();
     if (e.evt.touches.length === 2 && stageRef.current !== null) {
       setIsPinching(true);
-      stageRef.current.draggable(false);
+      // stageRef.current.draggable(false);
     }
   }
 
