@@ -53,7 +53,7 @@ export const MarkerImage = ({
         width={newWidth || 0}
         height={newHeight || 0}
         x={location.x * maxWidth + mapPoint.x || 0}
-        y={location.y * maxHeight + mapPoint.y || 0}
+        y={location.y * maxWidth + mapPoint.y || 0}
         ref={markerRef}
       />
     </>

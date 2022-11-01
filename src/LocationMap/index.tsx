@@ -239,10 +239,13 @@ export const LocationMap = ({
 
     const mapPos = mapRef.current.getClientRect();
     var mapPoint = transform.point(mapPos);
-
+    console.log({
+      x: (point.x - mapPoint.x) / maxWidth,
+      y: (point.y - mapPoint.y) / maxWidth,
+    });
     setMarkerLocation({
       x: (point.x - mapPoint.x) / maxWidth,
-      y: (point.y - mapPoint.y) / maxHeight,
+      y: (point.y - mapPoint.y) / maxWidth,
     });
   };
 
