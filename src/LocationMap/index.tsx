@@ -52,7 +52,8 @@ export const LocationMap = ({
   const markerImageRef = useRef<Konva.Image | null>(null);
   const [maxWidth, setMaxWidth] = useState(0);
   const [maxHeight, setMaxHeight] = useState(0);
-  const [pinching, setIsPinching] = useState(false);
+
+  const [, setIsPinching] = useState(false);
   const [mapSize, setMapSize] = useState({ width: 0, height: 0 });
   const [zoomLevel, setZoomLevel] = useState<number>(1);
 
