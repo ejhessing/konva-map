@@ -319,9 +319,9 @@ export const LocationMap = ({
               )}
             </Group>
           </Layer>
-          <Layer draggable>
-            <Group>
-              {markerMode && (
+          {markerMode && (
+            <Layer draggable>
+              <Group>
                 <Marker
                   url={
                     "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
@@ -332,9 +332,9 @@ export const LocationMap = ({
                   location={markerLocation}
                   mapSize={mapSize}
                 />
-              )}
-            </Group>
-          </Layer>
+              </Group>
+            </Layer>
+          )}
         </Stage>
         {!markerMode && (
           <div>
