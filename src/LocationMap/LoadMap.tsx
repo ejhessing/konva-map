@@ -30,8 +30,8 @@ export const LoadMap = ({
   );
 
   // Center location map
-  const x = (mapWidth - newWidth) / 2 - 4;
-  const y = (mapHeight - newHeight) / 2 - 4;
+  const x = (mapWidth - newWidth) / 2;
+  const y = (mapHeight - newHeight) / 2;
 
   useEffect(() => {
     if (newWidth && newHeight) {

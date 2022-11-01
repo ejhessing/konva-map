@@ -242,8 +242,8 @@ export const LocationMap = ({
   };
 
   return (
-    <div className="p-3 w-full h-full">
-      <div className="w-full h-5/6" id="stage-parent">
+    <div className="p-3 w-full h-full bg-slate-300 ">
+      <div className="w-full h-5/6 bg-slate-200 rounded-lg " id="stage-parent">
         <ToolBar
           zoomIn={() => setScale(zoomLevel + 0.25)}
           zoomOut={() => {
@@ -258,7 +258,7 @@ export const LocationMap = ({
           ref={stageRef}
           width={500}
           height={500}
-          className="bg-slate-200 border-2  border-blue-600"
+          className=""
           draggable={false}
           // draggable={!pinching && !markerMode}
           onWheel={zoomStage}
