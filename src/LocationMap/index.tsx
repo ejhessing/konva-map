@@ -280,7 +280,17 @@ export const LocationMap = ({
             }
             setScale(zoomLevel - 0.25);
           }}
-          zoomReset={() => setScale(1)}
+          zoomReset={() => {
+            setScale(1);
+            const stage = stageRef.current;
+            if (stage === null) return;
+            var newPos = {
+              x: 0,
+              y: 0,
+            };
+            stage.position(newPos);
+            stage.batchDraw();
+          }}
         />
         <Stage
           ref={stageRef}
@@ -313,10 +323,7 @@ export const LocationMap = ({
           <Layer perfectDrawEnabled={false}>
             <Group>
               <LoadMap
-                url={
-                  // "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/hospital-floor-plan-medical-office-building-plans_88886.jpeg"
-                  "./assets/FLOOR-PLAN-BUILDINGS.jpg"
-                }
+                url={"./assets/FLOOR-PLAN-BUILDINGS.jpg"}
                 mapHeight={maxHeight}
                 mapWidth={maxWidth}
                 mapRef={mapRef}
@@ -327,10 +334,7 @@ export const LocationMap = ({
               />
               {!!markerLocation.x && (
                 <MarkerImage
-                  url={
-                    // "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888920ebc2fc2ef3a1860a9+(1).png"
-                    "./assets/marker.png"
-                  }
+                  url={"./assets/marker.png"}
                   maxWidth={maxWidth}
                   maxHeight={maxHeight}
                   markerRef={markerImageRef}
@@ -347,10 +351,7 @@ export const LocationMap = ({
             <Layer draggable>
               <Group>
                 <Marker
-                  url={
-                    // "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
-                    "./assets/temp-marker.png"
-                  }
+                  url={"./assets/temp-marker.png"}
                   maxWidth={maxWidth}
                   maxHeight={maxHeight}
                   markerRef={markerRef}
