@@ -13,6 +13,7 @@ interface Props {
   mapSize: { width: number; height: number };
   mapRef: React.MutableRefObject<Konva.Image | null>;
   stageRef: React.MutableRefObject<Konva.Stage | null>;
+  mapRatio: number;
 }
 
 export const MarkerImage = ({
@@ -24,6 +25,7 @@ export const MarkerImage = ({
   mapSize,
   mapRef,
   stageRef,
+  mapRatio,
 }: Props) => {
   const [markerImg] = useImage(url);
   const imageWidth = markerImg?.naturalWidth || 0;
@@ -45,10 +47,16 @@ export const MarkerImage = ({
 
   const mapPos = mapRef.current.getClientRect();
   var mapPoint = transform.point(mapPos);
-  const x = location.x * mapSize.width + mapPoint.x;
-  const y = location.y * mapSize.height + mapPoint.y;
 
-  console.log({ mapPoint, location, mapSize, x, y });
+  const originalMapSize = {
+    width: mapSize.width / mapRatio,
+    height: mapSize.height / mapRatio,
+  };
+
+  const x = (location.x / originalMapSize.width) * mapSize.width + mapPoint.x;
+  const y = (location.y / originalMapSize.height) * mapSize.height + mapPoint.y;
+
+  console.log({ mapPoint, location, mapSize, x, y, originalMapSize });
   return (
     <>
       <Image

@@ -50,6 +50,7 @@ export const LocationMap = ({
   const mapRef = useRef<Konva.Image | null>(null);
   const markerRef = useRef<Konva.Image | null>(null);
   const markerImageRef = useRef<Konva.Image | null>(null);
+  const [mapRatio, setMapRatio] = useState(0);
   const [maxWidth, setMaxWidth] = useState(0);
   const [maxHeight, setMaxHeight] = useState(0);
 
@@ -253,14 +254,18 @@ export const LocationMap = ({
 
     // make the points start at (0,0) by removing where the map starts
     // divide it by the width and height to make it a percentage
-    console.log({ point });
+
+    const originalMapSize = {
+      width: mapSize.width / mapRatio,
+      height: mapSize.height / mapRatio,
+    };
     console.log({
-      x: ((point.x - mapPoint.x) / mapSize.width).toFixed(2),
-      y: ((point.y - mapPoint.y) / mapSize.height).toFixed(2),
+      x: ((point.x - mapPoint.x) / mapSize.width) * originalMapSize.width,
+      y: ((point.y - mapPoint.y) / mapSize.height) * originalMapSize.height,
     });
     setMarkerLocation({
-      x: Number(((point.x - mapPoint.x) / mapSize.width).toFixed(2)),
-      y: Number(((point.y - mapPoint.y) / mapSize.height).toFixed(2)),
+      x: ((point.x - mapPoint.x) / mapSize.width) * originalMapSize.width,
+      y: ((point.y - mapPoint.y) / mapSize.height) * originalMapSize.height,
     });
   };
 
@@ -318,6 +323,7 @@ export const LocationMap = ({
                 setMapSize={(w: number, h: number) =>
                   setMapSize({ width: w, height: h })
                 }
+                setMapRatio={(x: number) => setMapRatio(x)}
               />
               {!!markerLocation.x && (
                 <MarkerImage
@@ -332,6 +338,7 @@ export const LocationMap = ({
                   mapSize={mapSize}
                   mapRef={mapRef}
                   stageRef={stageRef}
+                  mapRatio={mapRatio}
                 />
               )}
             </Group>
@@ -351,6 +358,7 @@ export const LocationMap = ({
                   mapSize={mapSize}
                   mapRef={mapRef}
                   stageRef={stageRef}
+                  mapRatio={mapRatio}
                 />
               </Group>
             </Layer>
