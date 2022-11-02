@@ -50,6 +50,7 @@ export const LocationMap = ({
   const mapRef = useRef<Konva.Image | null>(null);
   const markerRef = useRef<Konva.Image | null>(null);
   const markerImageRef = useRef<Konva.Image | null>(null);
+  const [mapRatio, setMapRatio] = useState(0);
   const [maxWidth, setMaxWidth] = useState(0);
   const [maxHeight, setMaxHeight] = useState(0);
 
@@ -244,17 +245,27 @@ export const LocationMap = ({
     transform.invert();
     // now we find relative point
     const pos = markerRef.current.getClientRect();
+    // Location of the absolute point of marker
     var point = transform.point(pos);
 
     const mapPos = mapRef.current.getClientRect();
+    // Location of absolute position of where the map starts
     var mapPoint = transform.point(mapPos);
+
+    // make the points start at (0,0) by removing where the map starts
+    // divide it by the width and height to make it a percentage
+
+    const originalMapSize = {
+      width: mapSize.width / mapRatio,
+      height: mapSize.height / mapRatio,
+    };
     console.log({
-      x: (point.x - mapPoint.x) / maxWidth,
-      y: (point.y - mapPoint.y) / maxWidth,
+      x: ((point.x - mapPoint.x) / mapSize.width) * originalMapSize.width,
+      y: ((point.y - mapPoint.y) / mapSize.height) * originalMapSize.height,
     });
     setMarkerLocation({
-      x: (point.x - mapPoint.x) / maxWidth,
-      y: (point.y - mapPoint.y) / maxWidth,
+      x: ((point.x - mapPoint.x) / mapSize.width) * originalMapSize.width,
+      y: ((point.y - mapPoint.y) / mapSize.height) * originalMapSize.height,
     });
   };
 
@@ -269,7 +280,17 @@ export const LocationMap = ({
             }
             setScale(zoomLevel - 0.25);
           }}
-          zoomReset={() => setScale(1)}
+          zoomReset={() => {
+            setScale(1);
+            const stage = stageRef.current;
+            if (stage === null) return;
+            var newPos = {
+              x: 0,
+              y: 0,
+            };
+            stage.position(newPos);
+            stage.batchDraw();
+          }}
         />
         <Stage
           ref={stageRef}
@@ -302,21 +323,18 @@ export const LocationMap = ({
           <Layer perfectDrawEnabled={false}>
             <Group>
               <LoadMap
-                url={
-                  "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/hospital-floor-plan-medical-office-building-plans_88886.jpeg"
-                }
+                url={"./assets/FLOOR-PLAN-BUILDINGS.jpg"}
                 mapHeight={maxHeight}
                 mapWidth={maxWidth}
                 mapRef={mapRef}
                 setMapSize={(w: number, h: number) =>
                   setMapSize({ width: w, height: h })
                 }
+                setMapRatio={(x: number) => setMapRatio(x)}
               />
               {!!markerLocation.x && (
                 <MarkerImage
-                  url={
-                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888920ebc2fc2ef3a1860a9+(1).png"
-                  }
+                  url={"./assets/marker.png"}
                   maxWidth={maxWidth}
                   maxHeight={maxHeight}
                   markerRef={markerImageRef}
@@ -324,6 +342,7 @@ export const LocationMap = ({
                   mapSize={mapSize}
                   mapRef={mapRef}
                   stageRef={stageRef}
+                  mapRatio={mapRatio}
                 />
               )}
             </Group>
@@ -332,14 +351,15 @@ export const LocationMap = ({
             <Layer draggable>
               <Group>
                 <Marker
-                  url={
-                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
-                  }
+                  url={"./assets/temp-marker.png"}
                   maxWidth={maxWidth}
                   maxHeight={maxHeight}
                   markerRef={markerRef}
                   location={markerLocation}
                   mapSize={mapSize}
+                  mapRef={mapRef}
+                  stageRef={stageRef}
+                  mapRatio={mapRatio}
                 />
               </Group>
             </Layer>

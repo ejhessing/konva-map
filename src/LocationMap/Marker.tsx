@@ -10,6 +10,9 @@ interface Props {
   markerRef: React.MutableRefObject<Konva.Image | null>;
   location: { x: number; y: number };
   mapSize: { width: number; height: number };
+  mapRef: React.MutableRefObject<Konva.Image | null>;
+  stageRef: React.MutableRefObject<Konva.Stage | null>;
+  mapRatio: number;
 }
 
 export const Marker = ({
@@ -19,6 +22,9 @@ export const Marker = ({
   markerRef,
   location,
   mapSize,
+  mapRef,
+  stageRef,
+  mapRatio,
 }: Props) => {
   const [markerImg] = useImage(url);
   const imageWidth = markerImg?.naturalWidth || 0;
@@ -26,23 +32,34 @@ export const Marker = ({
 
   const scaleDown = 0.05;
 
-  const { width: newWidth, height: newHeight } = calculateAspectRatioFit(
-    imageWidth,
-    imageHeight,
-    maxWidth * scaleDown,
-    maxHeight * scaleDown
-  );
+  const { width: newWidth = 0, height: newHeight = 0 } =
+    calculateAspectRatioFit(
+      imageWidth,
+      imageHeight,
+      maxWidth * scaleDown,
+      maxHeight * scaleDown
+    );
 
-  // Center location map
-  const x = maxWidth / 2 || 0;
-  const y = maxHeight / 2 || 0;
-  // const x = location.x * maxWidth || (maxWidth - newWidth) / 2 || 0;
-  // const y = location.y * maxHeight || (maxHeight - newHeight) / 2 || 0;
+  if (stageRef.current === null || mapRef.current === null) return <></>;
 
-  const coordsX = maxWidth / 2 || 0;
-  const coordsY = maxHeight / 2 || 0;
-  // const coordsX = (location.x * maxWidth) / mapSize.width || maxWidth / 2 || 0;
-  // const coordsY = (location.y * maxWidth) / mapSize.width || maxHeight / 2 || 0;
+  var transform = stageRef.current.getAbsoluteTransform().copy();
+  // to detect relative position we need to invert transform
+  transform.invert();
+
+  const mapPos = mapRef.current.getClientRect();
+  // Location of absolute position of where the map starts
+  var mapPoint = transform.point(mapPos);
+  // location of where the point is if map starts at 0,0
+  // Times by the size of the image
+  // plus the location of where map starts
+  const originalMapSize = {
+    width: mapSize.width / mapRatio,
+    height: mapSize.height / mapRatio,
+  };
+
+  const x = (location.x / originalMapSize.width) * mapSize.width + mapPoint.x;
+  const y = (location.y / originalMapSize.height) * mapSize.height + mapPoint.y;
+  console.log({ x, y });
   return (
     <>
       <Rect width={maxWidth} height={maxHeight} x={0} y={0} />
@@ -55,18 +72,13 @@ export const Marker = ({
         ref={markerRef}
       />
       <Line
-        points={[coordsX + newWidth / 2, -10000, coordsX + newWidth / 2, 10000]}
+        points={[x + newWidth / 2, -10000, x + newWidth / 2, 10000]}
         stroke="red"
         strokeWidth={1}
         opacity={0.5}
       />
       <Line
-        points={[
-          -10000,
-          coordsY + newHeight || 0,
-          10000,
-          coordsY + newHeight || 0,
-        ]}
+        points={[-10000, y + newHeight || 0, 10000, y + newHeight || 0]}
         stroke="red"
         strokeWidth={1}
         opacity={0.5}

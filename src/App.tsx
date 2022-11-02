@@ -4,8 +4,8 @@ import { LocationMap } from "./LocationMap";
 export const App = () => {
   const [markerMode, setMarkerMode] = useState(false);
   const [markerLocation, setMarkerLocation] = useState({
-    x: 0.47050836894586895,
-    y: 0.2662865162148419,
+    x: 208.447714371968,
+    y: 757.4103640190837,
   });
 
   const handleSetLocation = ({ x, y }: { x: number; y: number }) => {

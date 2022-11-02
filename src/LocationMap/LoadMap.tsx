@@ -10,6 +10,7 @@ interface Props {
   mapHeight: number;
   mapRef: React.MutableRefObject<Konva.Image | null>;
   setMapSize: (width: number, height: number) => void;
+  setMapRatio: (x: number) => void;
 }
 
 export const LoadMap = ({
@@ -18,10 +19,12 @@ export const LoadMap = ({
   mapHeight = 0,
   mapRef,
   setMapSize,
+  setMapRatio,
 }: Props) => {
   const [image] = useImage(url);
   const imageWidth = image?.naturalWidth || 0;
   const imageHeight = image?.naturalHeight || 0;
+  console.log({ imageWidth, imageHeight });
   const { width: newWidth, height: newHeight } = calculateAspectRatioFit(
     imageWidth,
     imageHeight,
@@ -36,6 +39,8 @@ export const LoadMap = ({
   useEffect(() => {
     if (newWidth && newHeight) {
       setMapSize(newWidth, newHeight);
+      var ratio = Math.min(mapWidth / imageWidth, mapHeight / imageHeight);
+      setMapRatio(ratio);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
