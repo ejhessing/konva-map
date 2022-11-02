@@ -244,17 +244,23 @@ export const LocationMap = ({
     transform.invert();
     // now we find relative point
     const pos = markerRef.current.getClientRect();
+    // Location of the absolute point of marker
     var point = transform.point(pos);
 
     const mapPos = mapRef.current.getClientRect();
+    // Location of absolute position of where the map starts
     var mapPoint = transform.point(mapPos);
+
+    // make the points start at (0,0) by removing where the map starts
+    // divide it by the width and height to make it a percentage
+    console.log({ point });
     console.log({
-      x: (point.x - mapPoint.x) / maxWidth,
-      y: (point.y - mapPoint.y) / maxWidth,
+      x: ((point.x - mapPoint.x) / mapSize.width).toFixed(2),
+      y: ((point.y - mapPoint.y) / mapSize.height).toFixed(2),
     });
     setMarkerLocation({
-      x: (point.x - mapPoint.x) / maxWidth,
-      y: (point.y - mapPoint.y) / maxWidth,
+      x: Number(((point.x - mapPoint.x) / mapSize.width).toFixed(2)),
+      y: Number(((point.y - mapPoint.y) / mapSize.height).toFixed(2)),
     });
   };
 
@@ -303,7 +309,8 @@ export const LocationMap = ({
             <Group>
               <LoadMap
                 url={
-                  "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/hospital-floor-plan-medical-office-building-plans_88886.jpeg"
+                  // "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/hospital-floor-plan-medical-office-building-plans_88886.jpeg"
+                  "./assets/FLOOR-PLAN-BUILDINGS.jpg"
                 }
                 mapHeight={maxHeight}
                 mapWidth={maxWidth}
@@ -315,7 +322,8 @@ export const LocationMap = ({
               {!!markerLocation.x && (
                 <MarkerImage
                   url={
-                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888920ebc2fc2ef3a1860a9+(1).png"
+                    // "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888920ebc2fc2ef3a1860a9+(1).png"
+                    "./assets/marker.png"
                   }
                   maxWidth={maxWidth}
                   maxHeight={maxHeight}
@@ -333,13 +341,16 @@ export const LocationMap = ({
               <Group>
                 <Marker
                   url={
-                    "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
+                    // "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/5888925dbc2fc2ef3a1860ad.png"
+                    "./assets/temp-marker.png"
                   }
                   maxWidth={maxWidth}
                   maxHeight={maxHeight}
                   markerRef={markerRef}
                   location={markerLocation}
                   mapSize={mapSize}
+                  mapRef={mapRef}
+                  stageRef={stageRef}
                 />
               </Group>
             </Layer>

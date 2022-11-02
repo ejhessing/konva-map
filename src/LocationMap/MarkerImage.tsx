@@ -45,15 +45,18 @@ export const MarkerImage = ({
 
   const mapPos = mapRef.current.getClientRect();
   var mapPoint = transform.point(mapPos);
+  const x = location.x * mapSize.width + mapPoint.x;
+  const y = location.y * mapSize.height + mapPoint.y;
 
+  console.log({ mapPoint, location, mapSize, x, y });
   return (
     <>
       <Image
         image={markerImg}
         width={newWidth || 0}
         height={newHeight || 0}
-        x={location.x * maxWidth + mapPoint.x || 0}
-        y={location.y * maxWidth + mapPoint.y || 0}
+        x={x || 0}
+        y={y || 0}
         ref={markerRef}
       />
     </>
