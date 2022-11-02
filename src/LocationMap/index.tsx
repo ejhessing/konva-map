@@ -53,7 +53,7 @@ export const LocationMap = ({
   const [maxWidth, setMaxWidth] = useState(0);
   const [maxHeight, setMaxHeight] = useState(0);
 
-  const [, setIsPinching] = useState(false);
+  const [pinching, setIsPinching] = useState(false);
   const [mapSize, setMapSize] = useState({ width: 0, height: 0 });
   const [zoomLevel, setZoomLevel] = useState<number>(1);
 
@@ -139,6 +139,7 @@ export const LocationMap = ({
     const stage = stageRef.current;
     if (!stage) return;
     if (touch1 && touch2) {
+      setIsPinching(true);
       // if the stage was under Konva's drag&drop
       // we need to stop it, and implement our own pan logic with two pointers
       if (stage.isDragging()) {
@@ -173,7 +174,9 @@ export const LocationMap = ({
       };
 
       var scale = stage.scaleX() * (dist / lastDist);
-
+      if (scale <= 1) {
+        scale = 1;
+      }
       stage.scaleX(scale);
       stage.scaleY(scale);
 
@@ -190,6 +193,7 @@ export const LocationMap = ({
 
       lastDist = dist;
       lastCenter = newCenter;
+      return;
     }
   }
 
@@ -197,6 +201,19 @@ export const LocationMap = ({
     lastCenter = null;
     lastDist = 0;
     setIsPinching(false);
+    const stage = stageRef.current;
+    if (stage !== null) {
+      const scale = stage.scaleX();
+      if (scale <= 1) {
+        var newPos = {
+          x: 0,
+          y: 0,
+        };
+        stage.position(newPos);
+        stage.batchDraw();
+      }
+    }
+
     // stageRef.current?.draggable(true);
   }
 
@@ -259,8 +276,8 @@ export const LocationMap = ({
           width={500}
           height={500}
           className=""
-          draggable={false}
-          // draggable={!pinching && !markerMode}
+          // draggable={false}
+          draggable={!pinching && !markerMode}
           onWheel={zoomStage}
           onTouchDown={handleTouchDown}
           onTouchMove={handleTouch}
