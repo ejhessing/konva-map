@@ -59,15 +59,25 @@ export const LocationMap = ({
   const [zoomLevel, setZoomLevel] = useState<number>(1);
 
   useEffect(() => {
-    var container = document.querySelector("#stage-parent");
-    // @ts-ignore
-    stageRef.current?.width(container?.offsetWidth || 500);
-    // @ts-ignore
-    setMaxHeight(container?.offsetHeight || 500);
-    // @ts-ignore
-    setMaxWidth(container?.offsetWidth || 500);
-    // @ts-ignore
-    stageRef.current?.height(container?.offsetHeight || 600);
+    const resize = () => {
+      var container = document.querySelector("#stage-parent");
+      // @ts-ignore
+      stageRef.current?.width(container?.offsetWidth || 500);
+      // @ts-ignore
+      setMaxHeight(container?.offsetHeight || 500);
+      // @ts-ignore
+      setMaxWidth(container?.offsetWidth || 500);
+      // @ts-ignore
+      stageRef.current?.height(container?.offsetHeight || 600);
+    };
+    resize();
+    window.addEventListener(
+      "resize",
+      function (e) {
+        resize();
+      },
+      true
+    );
   }, []);
 
   let lastCenter: Points | null = null;
