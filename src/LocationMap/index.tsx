@@ -60,15 +60,17 @@ export const LocationMap = ({
 
   useEffect(() => {
     const resize = () => {
-      var container = document.querySelector("#stage-parent");
-      // @ts-ignore
-      stageRef.current?.width(container?.offsetWidth || 500);
-      // @ts-ignore
-      setMaxHeight(container?.offsetHeight || 500);
-      // @ts-ignore
-      setMaxWidth(container?.offsetWidth || 500);
-      // @ts-ignore
-      stageRef.current?.height(container?.offsetHeight || 600);
+      var container = document.querySelector(
+        "#stage-parent"
+      ) as HTMLElement | null;
+      if (container === null) return;
+
+      stageRef.current?.width(container.offsetWidth || 500);
+
+      setMaxHeight(container.offsetHeight || 500);
+
+      setMaxWidth(container.offsetWidth || 500);
+      stageRef.current?.height(container.offsetHeight || 600);
     };
     resize();
     window.addEventListener(
