@@ -323,7 +323,7 @@ export const LocationMap = ({
           <Layer perfectDrawEnabled={false}>
             <Group>
               <LoadMap
-                url={"./assets/FLOOR-PLAN-BUILDINGS.jpg"}
+                url={"./assets/hospital-floor-plan.jpg"}
                 mapHeight={maxHeight}
                 mapWidth={maxWidth}
                 mapRef={mapRef}
