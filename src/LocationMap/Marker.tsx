@@ -1,4 +1,5 @@
 import Konva from "konva";
+import { useEffect } from "react";
 import { Image, Line, Rect } from "react-konva";
 import useImage from "use-image";
 import { calculateAspectRatioFit } from "./helper";
@@ -8,11 +9,12 @@ interface Props {
   maxWidth: number;
   maxHeight: number;
   markerRef: React.MutableRefObject<Konva.Image | null>;
-  location: { x: number; y: number };
+  tempLocation: { x: number; y: number };
   mapSize: { width: number; height: number };
   mapRef: React.MutableRefObject<Konva.Image | null>;
   stageRef: React.MutableRefObject<Konva.Stage | null>;
   mapRatio: number;
+  setMarkerSize: (w: number, h: number) => void;
 }
 
 export const Marker = ({
@@ -20,11 +22,12 @@ export const Marker = ({
   maxWidth = 0,
   maxHeight = 0,
   markerRef,
-  location,
+  tempLocation,
   mapSize,
   mapRef,
   stageRef,
   mapRatio,
+  setMarkerSize,
 }: Props) => {
   const [markerImg] = useImage(url);
   const imageWidth = markerImg?.naturalWidth || 0;
@@ -39,6 +42,14 @@ export const Marker = ({
       maxWidth * scaleDown,
       maxHeight * scaleDown
     );
+
+  useEffect(() => {
+    if (newWidth && newHeight) {
+      setMarkerSize(newWidth, newHeight);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newHeight, newWidth]);
 
   if (stageRef.current === null || mapRef.current === null) return <></>;
 
@@ -57,32 +68,38 @@ export const Marker = ({
     height: mapSize.height / mapRatio,
   };
 
-  const x = (location.x / originalMapSize.width) * mapSize.width + mapPoint.x;
-  const y = (location.y / originalMapSize.height) * mapSize.height + mapPoint.y;
-  console.log({ x, y });
+  const x =
+    (tempLocation.x / originalMapSize.width) * mapSize.width + mapPoint.x;
+  const y =
+    (tempLocation.y / originalMapSize.height) * mapSize.height + mapPoint.y;
+
   return (
     <>
-      <Rect width={maxWidth} height={maxHeight} x={0} y={0} />
-      <Image
-        image={markerImg}
-        width={newWidth || 0}
-        height={newHeight || 0}
-        x={x}
-        y={y}
-        ref={markerRef}
-      />
-      <Line
-        points={[x + newWidth / 2, -10000, x + newWidth / 2, 10000]}
-        stroke="red"
-        strokeWidth={1}
-        opacity={0.5}
-      />
-      <Line
-        points={[-10000, y + newHeight || 0, 10000, y + newHeight || 0]}
-        stroke="red"
-        strokeWidth={1}
-        opacity={0.5}
-      />
+      {!!tempLocation.x && (
+        <>
+          <Rect width={maxWidth} height={maxHeight} x={0} y={0} />
+          <Image
+            image={markerImg}
+            width={newWidth || 0}
+            height={newHeight || 0}
+            x={x}
+            y={y}
+            ref={markerRef}
+          />
+          <Line
+            points={[x + newWidth / 2, -10000, x + newWidth / 2, 10000]}
+            stroke="red"
+            strokeWidth={1}
+            opacity={0.5}
+          />
+          <Line
+            points={[-10000, y + newHeight || 0, 10000, y + newHeight || 0]}
+            stroke="red"
+            strokeWidth={1}
+            opacity={0.5}
+          />
+        </>
+      )}
     </>
   );
 };
