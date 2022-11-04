@@ -35,25 +35,32 @@ function getCenter(p1: Points, p2: Points) {
 
 interface Props {
   markerMode: boolean;
-  setMarkerMode: (markerMode: boolean) => void;
+  handleSetMarkerMode: (markerMode: boolean) => void;
   markerLocation: Vector2d;
   setMarkerLocation: ({ x, y }: Vector2d) => void;
+  setUpdateLocation: ({ x, y }: Vector2d) => void;
+  tempMarkerLocation: Vector2d;
+  cancelLocation: () => void;
 }
 
 export const LocationMap = ({
   markerMode,
-  setMarkerMode,
+  handleSetMarkerMode,
   setMarkerLocation,
   markerLocation,
+  setUpdateLocation,
+  tempMarkerLocation,
+  cancelLocation,
 }: Props) => {
   const stageRef = useRef<Konva.Stage>(null);
   const mapRef = useRef<Konva.Image | null>(null);
   const markerRef = useRef<Konva.Image | null>(null);
   const markerImageRef = useRef<Konva.Image | null>(null);
+  const groupRef = useRef<Konva.Group>(null);
   const [mapRatio, setMapRatio] = useState(0);
   const [maxWidth, setMaxWidth] = useState(0);
   const [maxHeight, setMaxHeight] = useState(0);
-
+  const [markerSize, setMarkerSize] = useState({ width: 0, height: 0 });
   const [pinching, setIsPinching] = useState(false);
   const [mapSize, setMapSize] = useState({ width: 0, height: 0 });
   const [zoomLevel, setZoomLevel] = useState<number>(1);
@@ -232,6 +239,7 @@ export const LocationMap = ({
 
   function handleTouchDown(e: Konva.KonvaEventObject<TouchEvent>) {
     e.evt.preventDefault();
+
     if (e.evt.touches.length === 2 && stageRef.current !== null) {
       setIsPinching(true);
       // stageRef.current.draggable(false);
@@ -242,6 +250,44 @@ export const LocationMap = ({
     const stage = e.target.getStage();
 
     if (!stage) return;
+  };
+
+  const handleOnClick = (e: any) => {
+    const stage = stageRef.current;
+    const group = groupRef.current;
+
+    if (!stage || !group || !mapRef.current) return;
+    if (markerMode) {
+      const markerH = markerSize.height;
+      const markerW = markerSize.width;
+      var transform = stageRef.current.getAbsoluteTransform().copy();
+      // to detect relative position we need to invert transform
+      transform.invert();
+      // now we find relative point
+      const pos = group.getRelativePointerPosition();
+
+      const mapPos = mapRef.current.getClientRect();
+
+      // Location of absolute position of where the map starts
+      var mapPoint = transform.point(mapPos);
+
+      // make the points start at (0,0) by removing where the map starts
+      // divide it by the width and height to make it a percentage
+
+      const originalMapSize = {
+        width: mapSize.width / mapRatio,
+        height: mapSize.height / mapRatio,
+      };
+
+      setMarkerLocation({
+        x:
+          ((pos.x - markerW / 2 - mapPoint.x) / mapSize.width) *
+          originalMapSize.width,
+        y:
+          ((pos.y - markerH - mapPoint.y) / mapSize.height) *
+          originalMapSize.height,
+      });
+    }
   };
 
   const onHandleMarkerSet = () => {
@@ -275,7 +321,7 @@ export const LocationMap = ({
       x: ((point.x - mapPoint.x) / mapSize.width) * originalMapSize.width,
       y: ((point.y - mapPoint.y) / mapSize.height) * originalMapSize.height,
     });
-    setMarkerLocation({
+    setUpdateLocation({
       x: ((point.x - mapPoint.x) / mapSize.width) * originalMapSize.width,
       y: ((point.y - mapPoint.y) / mapSize.height) * originalMapSize.height,
     });
@@ -312,11 +358,13 @@ export const LocationMap = ({
           // draggable={false}
           draggable={!pinching && !markerMode}
           onWheel={zoomStage}
+          onTap={handleOnClick}
           onTouchDown={handleTouchDown}
           onTouchMove={handleTouch}
           onTouchEnd={handleTouchEnd}
           perfectDrawEnabled={false}
           onDragStart={handleDragStart}
+          onClick={handleOnClick}
           onDragEnd={(e) => {
             const stage = stageRef.current;
             if (stage !== null) {
@@ -360,18 +408,21 @@ export const LocationMap = ({
             </Group>
           </Layer>
           {markerMode && (
-            <Layer draggable>
-              <Group>
+            <Layer>
+              <Group draggable ref={groupRef}>
                 <Marker
                   url={"./assets/temp-marker.png"}
                   maxWidth={maxWidth}
                   maxHeight={maxHeight}
                   markerRef={markerRef}
-                  location={markerLocation}
+                  tempLocation={tempMarkerLocation}
                   mapSize={mapSize}
                   mapRef={mapRef}
                   stageRef={stageRef}
                   mapRatio={mapRatio}
+                  setMarkerSize={(width: number, height: number) =>
+                    setMarkerSize({ width, height })
+                  }
                 />
               </Group>
             </Layer>
@@ -380,11 +431,11 @@ export const LocationMap = ({
         {!markerMode && (
           <div>
             <button
-              onClick={() => setMarkerMode(true)}
+              onClick={() => handleSetMarkerMode(true)}
               className="bg-blue-600 border-blue-800 p-2 my-2 w-full rounded-lg text-white"
             >
               {" "}
-              Add Marker
+              {!!markerLocation.x ? "Update location" : "Add marker"}
             </button>
           </div>
         )}
@@ -397,7 +448,7 @@ export const LocationMap = ({
               Set location
             </button>
             <button
-              onClick={() => setMarkerMode(false)}
+              onClick={cancelLocation}
               className="bg-gray-600 border-gray-800 p-2 w-full m-2 rounded-lg  text-white"
             >
               Cancel
