@@ -34,6 +34,7 @@ export const App = () => {
   return (
     <div className="h-screen w-full">
       <div className="w-full h-full">
+        {/* <Test /> */}
         <LocationMap
           markerMode={markerMode}
           handleSetMarkerMode={handleSetMarkerMode}

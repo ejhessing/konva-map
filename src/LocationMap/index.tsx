@@ -1,11 +1,9 @@
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
 import { useEffect, useRef, useState } from "react";
-import { Group, Layer, Stage } from "react-konva";
+import { Layer, Stage } from "react-konva";
 import { ToolBar } from "../Toolbar";
-import { LoadMap } from "./LoadMap";
-import { Marker } from "./Marker";
-import { MarkerImage } from "./MarkerImage";
+import { LoadMapAndMarkers } from "./LoadMapAndMarkers";
 
 const scaleBy = 1.01;
 
@@ -24,14 +22,6 @@ function getCenter(p1: Points, p2: Points) {
     y: (p1.y + p2.y) / 2,
   };
 }
-
-// function isTouchEnabled() {
-//   return (
-//     "ontouchstart" in window ||
-//     navigator.maxTouchPoints > 0 ||
-//     navigator.maxTouchPoints > 0
-//   );
-// }
 
 interface Props {
   markerMode: boolean;
@@ -53,10 +43,11 @@ export const LocationMap = ({
   cancelLocation,
 }: Props) => {
   const stageRef = useRef<Konva.Stage>(null);
+  const parentRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Konva.Image | null>(null);
-  const markerRef = useRef<Konva.Image | null>(null);
-  const markerImageRef = useRef<Konva.Image | null>(null);
+  const tempMarkerRef = useRef<Konva.Image | null>(null);
   const groupRef = useRef<Konva.Group>(null);
+  const groupRefMain = useRef<Konva.Group>(null);
   const [mapRatio, setMapRatio] = useState(0);
   const [maxWidth, setMaxWidth] = useState(0);
   const [maxHeight, setMaxHeight] = useState(0);
@@ -65,21 +56,39 @@ export const LocationMap = ({
   const [mapSize, setMapSize] = useState({ width: 0, height: 0 });
   const [zoomLevel, setZoomLevel] = useState<number>(1);
 
+  // useEffect(() => {
+  //   const resize = () => {
+  //     var container = document.querySelector(
+  //       "#stage-parent"
+  //     ) as HTMLElement | null;
+  //     if (container === null) return;
+
+  //     stageRef.current?.width(container.offsetWidth || 500);
+
+  //     setMaxHeight(container.offsetHeight || 500);
+
+  //     setMaxWidth(container.offsetWidth || 500);
+  //     stageRef.current?.height(container.offsetHeight || 600);
+  //   };
+  //   resize();
+  //   window.addEventListener(
+  //     "resize",
+  //     function (e) {
+  //       resize();
+  //     },
+  //     true
+  //   );
+  // }, []);
+  const resize = () => {
+    if (parentRef?.current && stageRef?.current) {
+      const width = parentRef.current.offsetWidth;
+      const height = parentRef.current.offsetHeight;
+      setMaxWidth(width);
+      setMaxHeight(height);
+    }
+  };
+
   useEffect(() => {
-    const resize = () => {
-      var container = document.querySelector(
-        "#stage-parent"
-      ) as HTMLElement | null;
-      if (container === null) return;
-
-      stageRef.current?.width(container.offsetWidth || 500);
-
-      setMaxHeight(container.offsetHeight || 500);
-
-      setMaxWidth(container.offsetWidth || 500);
-      stageRef.current?.height(container.offsetHeight || 600);
-    };
-    resize();
     window.addEventListener(
       "resize",
       function (e) {
@@ -88,6 +97,15 @@ export const LocationMap = ({
       true
     );
   }, []);
+
+  useEffect(() => {
+    if (parentRef.current && stageRef.current) {
+      const width = parentRef.current.offsetWidth;
+      const height = parentRef.current.offsetHeight;
+      setMaxWidth(width);
+      setMaxHeight(height);
+    }
+  }, [parentRef.current?.clientWidth, parentRef.current?.clientHeight]);
 
   let lastCenter: Points | null = null;
   let lastDist = 0;
@@ -252,84 +270,28 @@ export const LocationMap = ({
     if (!stage) return;
   };
 
-  const handleOnClick = (e: any) => {
-    const stage = stageRef.current;
-    const group = groupRef.current;
-
-    if (!stage || !group || !mapRef.current) return;
-    if (markerMode) {
-      const markerH = markerSize.height;
-      const markerW = markerSize.width;
-      var transform = stageRef.current.getAbsoluteTransform().copy();
-      // to detect relative position we need to invert transform
-      transform.invert();
-      // now we find relative point
-      const pos = group.getRelativePointerPosition();
-
-      const mapPos = mapRef.current.getClientRect();
-
-      // Location of absolute position of where the map starts
-      var mapPoint = transform.point(mapPos);
-
-      // make the points start at (0,0) by removing where the map starts
-      // divide it by the width and height to make it a percentage
-
-      const originalMapSize = {
-        width: mapSize.width / mapRatio,
-        height: mapSize.height / mapRatio,
-      };
-
-      setMarkerLocation({
-        x:
-          ((pos.x - markerW / 2 - mapPoint.x) / mapSize.width) *
-          originalMapSize.width,
-        y:
-          ((pos.y - markerH - mapPoint.y) / mapSize.height) *
-          originalMapSize.height,
-      });
-    }
+  const handleTempMarkerLocation = (x: number, y: number) => {
+    setMarkerLocation({
+      x: x,
+      y: y,
+    });
   };
 
   const onHandleMarkerSet = () => {
-    if (
-      markerRef.current === null ||
-      stageRef.current === null ||
-      mapRef.current === null
-    )
-      return;
-
-    var transform = stageRef.current.getAbsoluteTransform().copy();
-    // to detect relative position we need to invert transform
-    transform.invert();
-    // now we find relative point
-    const pos = markerRef.current.getClientRect();
-    // Location of the absolute point of marker
-    var point = transform.point(pos);
-
-    const mapPos = mapRef.current.getClientRect();
-    // Location of absolute position of where the map starts
-    var mapPoint = transform.point(mapPos);
-
-    // make the points start at (0,0) by removing where the map starts
-    // divide it by the width and height to make it a percentage
-
-    const originalMapSize = {
-      width: mapSize.width / mapRatio,
-      height: mapSize.height / mapRatio,
-    };
-    console.log({
-      x: ((point.x - mapPoint.x) / mapSize.width) * originalMapSize.width,
-      y: ((point.y - mapPoint.y) / mapSize.height) * originalMapSize.height,
-    });
+    console.log({ tempMarkerLocation });
     setUpdateLocation({
-      x: ((point.x - mapPoint.x) / mapSize.width) * originalMapSize.width,
-      y: ((point.y - mapPoint.y) / mapSize.height) * originalMapSize.height,
+      x: tempMarkerLocation.x,
+      y: tempMarkerLocation.y,
     });
   };
 
   return (
     <div className="p-3 w-full h-full bg-slate-300 ">
-      <div className="w-full h-5/6 bg-slate-200 rounded-lg " id="stage-parent">
+      <div
+        className="w-full h-5/6 bg-slate-200 rounded-lg "
+        id="stage-parent"
+        ref={parentRef}
+      >
         <ToolBar
           zoomIn={() => setScale(zoomLevel + 0.25)}
           zoomOut={() => {
@@ -352,20 +314,22 @@ export const LocationMap = ({
         />
         <Stage
           ref={stageRef}
-          width={500}
-          height={500}
+          width={maxWidth}
+          height={maxHeight}
           className=""
           // draggable={false}
           draggable={!pinching && !markerMode}
           onWheel={zoomStage}
-          onTap={handleOnClick}
+          // onTap={handleOnClick}
           onTouchDown={handleTouchDown}
           onTouchMove={handleTouch}
           onTouchEnd={handleTouchEnd}
           perfectDrawEnabled={false}
           onDragStart={handleDragStart}
-          onClick={handleOnClick}
+          // onClick={handleOnClick}
           onDragEnd={(e) => {
+            if (markerMode) return;
+            console.log("inside dragend stage");
             const stage = stageRef.current;
             if (stage !== null) {
               const scale = stage.scaleX();
@@ -381,52 +345,21 @@ export const LocationMap = ({
           }}
         >
           <Layer perfectDrawEnabled={false}>
-            <Group>
-              <LoadMap
-                url={"./assets/hospital-floor-plan.jpeg"}
-                mapHeight={maxHeight}
-                mapWidth={maxWidth}
-                mapRef={mapRef}
-                setMapSize={(w: number, h: number) =>
-                  setMapSize({ width: w, height: h })
-                }
-                setMapRatio={(x: number) => setMapRatio(x)}
-              />
-              {!!markerLocation.x && (
-                <MarkerImage
-                  url={"./assets/marker.png"}
-                  maxWidth={maxWidth}
-                  maxHeight={maxHeight}
-                  markerRef={markerImageRef}
-                  location={markerLocation}
-                  mapSize={mapSize}
-                  mapRef={mapRef}
-                  stageRef={stageRef}
-                  mapRatio={mapRatio}
-                />
-              )}
-            </Group>
+            <LoadMapAndMarkers
+              // url={"./assets/hospital-floor-plan.jpeg"}
+              url={
+                "https://tabex-logo.s3.ap-southeast-2.amazonaws.com/FLOOR-PLAN-BUILDINGS.jpg"
+              }
+              maxHeight={maxHeight}
+              maxWidth={maxWidth}
+              mapRef={mapRef}
+              tempMarkerRef={tempMarkerRef}
+              tempLocation={tempMarkerLocation}
+              markerLocation={markerLocation}
+              markerMode={markerMode}
+              setTempLocation={handleTempMarkerLocation}
+            />
           </Layer>
-          {markerMode && (
-            <Layer>
-              <Group draggable ref={groupRef}>
-                <Marker
-                  url={"./assets/temp-marker.png"}
-                  maxWidth={maxWidth}
-                  maxHeight={maxHeight}
-                  markerRef={markerRef}
-                  tempLocation={tempMarkerLocation}
-                  mapSize={mapSize}
-                  mapRef={mapRef}
-                  stageRef={stageRef}
-                  mapRatio={mapRatio}
-                  setMarkerSize={(width: number, height: number) =>
-                    setMarkerSize({ width, height })
-                  }
-                />
-              </Group>
-            </Layer>
-          )}
         </Stage>
         {!markerMode && (
           <div>
